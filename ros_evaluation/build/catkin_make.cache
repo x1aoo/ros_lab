@@ -1,0 +1,2 @@
+platoon
+-DCATKIN_DEVEL_PREFIX=/home/xiao/code/ros/ros_evaluation/devel -DCMAKE_INSTALL_PREFIX=/home/xiao/code/ros/ros_evaluation/install -G Unix Makefiles

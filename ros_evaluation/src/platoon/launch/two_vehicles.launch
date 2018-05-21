@@ -1,0 +1,36 @@
+<launch>
+
+   <group ns="leader">
+       <node pkg="platoon" type="leader_node" name="leader">
+       </node>
+   </group>
+
+
+   <group ns="vehicle1">
+      <node pkg="platoon" type="vehicle_node" name="vehicle">
+         <param name="x0" value="-0.5" />
+         <param name="y0" value="0.0" />
+         <param name="theta0" value="-0.1" />
+      </node>
+      <node pkg="platoon" type="control_node" name="controller" clear_params="true">
+         <remap from="/vehicle1/front_posture" to="/leader/rear_posture"/>
+         <remap from="/vehicle1/front_twist" to="/leader/rear_twist"/>
+      </node>
+   </group>
+
+
+   <group ns="vehicle2">
+      <node pkg="platoon" type="vehicle_node" name="vehicle">
+         <param name="x0" value="-1.0" />
+         <param name="y0" value="0.0" />
+         <param name="theta0" value="0.1" />
+      </node>
+      <node pkg="platoon" type="control_node" name="controller" clear_params="true">
+         <remap from="/vehicle2/front_posture" to="/vehicle1/rear_posture"/>
+         <remap from="/vehicle2/front_twist" to="/vehicle1/rear_twist"/>
+	 <param name="dist" type="double" value="2" />
+	 <param name="kp"   type="double" value="0.5" />
+      </node>
+   </group>
+
+</launch>

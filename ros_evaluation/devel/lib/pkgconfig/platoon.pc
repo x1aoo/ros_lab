@@ -1,0 +1,8 @@
+prefix=/home/xiao/code/ros/ros_evaluation/devel
+
+Name: platoon
+Description: Description of platoon
+Version: 0.0.0
+Cflags: 
+Libs: -L/home/xiao/code/ros/ros_evaluation/devel/lib 
+Requires: 
