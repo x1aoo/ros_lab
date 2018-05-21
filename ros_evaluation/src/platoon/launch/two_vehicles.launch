@@ -29,7 +29,7 @@
          <remap from="/vehicle2/front_posture" to="/vehicle1/rear_posture"/>
          <remap from="/vehicle2/front_twist" to="/vehicle1/rear_twist"/>
 	 <param name="dist" type="double" value="2" />
-	 <param name="kp"   type="double" value="0.5" />
+	 <param name="Kp"   type="double" value="0.5" />
       </node>
    </group>
 

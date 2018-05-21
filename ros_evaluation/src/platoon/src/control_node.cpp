@@ -30,6 +30,9 @@
 //ROS
 #include "ros/ros.h"
 
+
+
+
 //Namespaces
 using namespace std;
 
@@ -46,9 +49,45 @@ using namespace std;
 
 
 // Callback functions...
+geometry_msgs::Pose2D front_pose;
+geometry_msgs::Twist front_twist;
+bool fpReceived = false ;
+bool ftReceived = false ;
+
+geometry_msgs::Pose2D rear_pose;
+geometry_msgs::Twist rear_twist;
+bool rpReceived = false ;
+bool rtReceived = false ;
 
 
+geometry_msgs::Twist control_twist;
+
+
+void getFPoseValue(geometry_msgs::Pose2D pose2d){
+    front_pose = pose2d;
+    fpReceived = true;
+}
+
+void getFTwistValue(geometry_msgs::Twist twist){
+    front_twist = twist;
+    ftReceived = true;
+
+}
+void getRPoseValue(geometry_msgs::Pose2D pose2d){
+    rear_pose = pose2d;
+    rpReceived = true;
+}
+
+void getRTwistValue(geometry_msgs::Twist twist){
+    rear_twist = twist;
+    rpReceived = true;
+}
+
+int dist;
+int Kp;
 //--------------------------------------------------------------------------------
+
+
 int main (int argc, char** argv)
 {
 
@@ -57,9 +96,12 @@ int main (int argc, char** argv)
 
     // Define your node handles
     // ...
+     ros::NodeHandle nh_glob, nh_loc("~");
 
     // Read the node parameters if any
     // ...
+     nh_loc.param("dist",dist,1);
+     nh_loc.param("Kp",Kp,1);
 
     // Declare your node's subscriptions. The form is:
     /* ros::Subscriber subscriberName = ...
@@ -70,16 +112,49 @@ int main (int argc, char** argv)
     // ros::Publisher publisherName = nodeHandler.advertise<messageCategory::Type>("topicName",bufferSize);
     // ...
     
+    ros::Subscriber front_pose_S
+        = nh_glob.subscribe<geometry_msgs::Pose2D> ("front_posture",1,getFPoseValue);
+    ros::Subscriber front_twist_S
+        = nh_glob.subscribe<geometry_msgs::Twist> ("front_twist",1,getFTwistValue);
+    ros::Subscriber rear_pose_S
+        = nh_glob.subscribe<geometry_msgs::Pose2D> ("rear_posture",1,getRPoseValue);
+    ros::Subscriber rear_twist_S
+        = nh_glob.subscribe<geometry_msgs::Twist> ("rear_twist",1,getRTwistValue);
+
+    ros::Publisher PubControlTwist
+        = nh_glob.advertise<geometry_msgs::Twist>("control",1);
     // Put here your node-specific initializations if any.
     // ...
 
 
-    ros::Rate rate(/* */);
+    // rate(frequence - hz)
+    ros::Rate rate(20.0);
     while (ros::ok()){
         ros::spinOnce();
 
         // Your node's code goes here.
         // ...
+//        if(fpReceived && ftReceived && rpReceived && rtReceived){
+
+            geometry_msgs::Pose2D pval;
+            geometry_msgs::Twist tval1;
+            geometry_msgs::Twist tval2;
+
+            pval.x = rear_pose.x + dist * cos( rear_pose.theta );
+            pval.y = rear_pose.y + dist * sin( rear_pose.theta );
+
+            tval1.angular.x = front_twist.linear.x * cos( front_pose.theta ) + Kp * (front_pose.x - pval.x);
+            tval2.angular.x = front_twist.linear.x * sin( front_pose.theta ) + Kp * (front_pose.y - pval.y);
+
+            control_twist.linear.x = tval1.angular.x * cos( rear_pose.theta ) + tval2.angular.x * sin (rear_pose.theta );
+            control_twist.angular.x = ( 1 / dist ) * ( -tval1.angular.x * sin(rear_pose.theta ) + tval2.angular.x * cos(rear_pose.theta ));
+            control_twist.linear.y = 1;
+            control_twist.linear.z = 1;
+            control_twist.angular.y = 1;
+            control_twist.angular.z = 1;
+            PubControlTwist.publish(control_twist);
+
+//        }
 
         rate.sleep();
     }
