@@ -83,8 +83,8 @@ void getRTwistValue(geometry_msgs::Twist twist){
     rpReceived = true;
 }
 
-int dist;
-int Kp;
+double dist;
+double Kp;
 //--------------------------------------------------------------------------------
 
 
@@ -100,8 +100,8 @@ int main (int argc, char** argv)
 
     // Read the node parameters if any
     // ...
-     nh_loc.param("dist",dist,1);
-     nh_loc.param("Kp",Kp,1);
+     nh_loc.param("dist",dist,1.0);
+     nh_loc.param("Kp",Kp,1.0);
 
     // Declare your node's subscriptions. The form is:
     /* ros::Subscriber subscriberName = ...
@@ -147,11 +147,11 @@ int main (int argc, char** argv)
             tval2.angular.x = front_twist.linear.x * sin( front_pose.theta ) + Kp * (front_pose.y - pval.y);
 
             control_twist.linear.x = tval1.angular.x * cos( rear_pose.theta ) + tval2.angular.x * sin (rear_pose.theta );
-            control_twist.angular.x = ( 1 / dist ) * ( -tval1.angular.x * sin(rear_pose.theta ) + tval2.angular.x * cos(rear_pose.theta ));
-            control_twist.linear.y = 1;
-            control_twist.linear.z = 1;
-            control_twist.angular.y = 1;
-            control_twist.angular.z = 1;
+            control_twist.angular.z = ( 1 / dist ) * ( -tval1.angular.x * sin(rear_pose.theta ) + tval2.angular.x * cos(rear_pose.theta ));
+            control_twist.linear.y = 0;
+            control_twist.linear.z = 0;
+            control_twist.angular.y = 0;
+            control_twist.angular.x = 0;
             PubControlTwist.publish(control_twist);
 
 //        }
